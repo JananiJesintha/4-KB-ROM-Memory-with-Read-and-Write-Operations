@@ -33,47 +33,33 @@ In this design, we will implement a 4KB ROM. Since ROM is typically read-only, w
 4KB = 4096 Bytes = 4096 x 8 bits
 The address width for 4KB memory is 12 bits (2^12 = 4096).
 
-
-// rom_memory.v
+Code for 4KB ROM Memory:
 module rom_memory (
     input wire clk,
-    input wire write_enable,   // Signal to enable write operation
-    input wire [11:0] address, // 12-bit address for 4KB memory
-    input wire [7:0] data_in,  // Data to write into ROM
-    output reg [7:0] data_out  // Data read from ROM
+    input wire write_enable,   
+    input wire [11:0] address, 
+    input wire [7:0] data_in,  
+    output reg [7:0] data_out  
 );
-
-    // Declare ROM with 4096 memory locations (each 8 bits wide)
     reg [7:0] rom[0:4095];
-
     always @(posedge clk) begin
         if (write_enable) begin
-            // Write operation: Write data into the ROM at the given address
-            rom[address] <= data_in;
+        rom[address] <= data_in;
         end
-        // Read operation: Read data from the ROM at the given address
         data_out <= rom[address];
     end
 endmodule
+![Screenshot 2024-10-17 143407](https://github.com/user-attachments/assets/f5c0af82-7687-47c9-a05e-22dcf6cce397)
 
 
-Testbench for 4KB ROM Memory
-
-// rom_memory_tb.v
+Testbench for 4KB ROM Memory:
 `timescale 1ns / 1ps
-
 module rom_memory_tb;
-
-    // Inputs
     reg clk;
     reg write_enable;
     reg [11:0] address;
     reg [7:0] data_in;
-
-    // Outputs
     wire [7:0] data_out;
-
-    // Instantiate the ROM module
     rom_memory uut (
         .clk(clk),
         .write_enable(write_enable),
@@ -81,41 +67,28 @@ module rom_memory_tb;
         .data_in(data_in),
         .data_out(data_out)
     );
-
-    // Clock generation
-    always #5 clk = ~clk;  // Toggle clock every 5 ns
-
-    // Test procedure
+    always #5 clk = ~clk;  
     initial begin
-        // Initialize inputs
         clk = 0;
         write_enable = 0;
         address = 0;
         data_in = 0;
-
-        // Write data into memory
-        #10 write_enable = 1; address = 12'd0; data_in = 8'hA5;  // Write 0xA5 at address 0
-        #10 write_enable = 1; address = 12'd1; data_in = 8'h5A;  // Write 0x5A at address 1
-        #10 write_enable = 1; address = 12'd2; data_in = 8'hFF;  // Write 0xFF at address 2
-        #10 write_enable = 1; address = 12'd3; data_in = 8'h00;  // Write 0x00 at address 3
-
-        // Disable write and start reading from memory
+        #10 write_enable = 1; address = 12'd0; data_in = 8'hA5;  
+        #10 write_enable = 1; address = 12'd1; data_in = 8'h5A;  
+        #10 write_enable = 1; address = 12'd2; data_in = 8'hFF;  
+        #10 write_enable = 1; address = 12'd3; data_in = 8'h00;  
         #10 write_enable = 0; address = 12'd0;
         #10 address = 12'd1;
         #10 address = 12'd2;
         #10 address = 12'd3;
-
-        // Stop the simulation
         #10 $stop;
     end
-
-    // Monitor the values for verification
     initial begin
         $monitor("Time = %0t | Write Enable = %b | Address = %h | Data In = %h | Data Out = %h", 
                  $time, write_enable, address, data_in, data_out);
     end
-
 endmodule
+![image](https://github.com/user-attachments/assets/33a49f8f-104e-43a4-8109-ea331e35ff9e)
 
 
 Conclusion
